@@ -1,18 +1,17 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { tap, map, catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 import { Observable, of } from 'rxjs';
-import { Router } from '@angular/router';
+import { tap, map, catchError } from 'rxjs/operators';
 
 import { environment } from '../../environments/environment';
 
 import { RegisterForm } from '../interfaces/register.form.interface';
 import { LoginForm } from '../interfaces/login.form.interface';
+import { CargarUsuario } from '../interfaces/cargar-usuarios.interfaces';
 
 import { Usuario } from '../models/usuario.model';
-
-
 
 const base_url = environment.base_url;
 
@@ -39,6 +38,14 @@ export class UsuarioService {
 
   get uid(): string {
     return this.usuario.uid || '';
+  }
+
+  get headers(): object {
+    return {
+      headers: {
+        'x-token': this.token
+      }
+    }
   }
 
   googleInit() {
@@ -68,12 +75,9 @@ export class UsuarioService {
   }
 
   validarToken(): Observable<boolean> {
-    return this.http.get(`${base_url}/login/renew`,
-      {
-        headers: {
-          'x-token': this.token
-        }
-      }).pipe(
+    const url = `${base_url}/login/renew`;
+    return this.http.get(url, this.headers)
+      .pipe(
         map((resp: any) => {
           const {
             email,
@@ -85,6 +89,8 @@ export class UsuarioService {
           } = resp.usuario;
 
           this.usuario = new Usuario(nombre, email, '', img, google, role, uid);
+
+          console.log(resp.token);
 
           localStorage.setItem('token', resp.token);
 
@@ -105,19 +111,15 @@ export class UsuarioService {
 
   // Seria mejor utilizar una interfaz
   actualizarPerfil(data: { email: string, nombre: string, role: string }) {
+    // localhost:3000/api/usuarios/id
+    const url = `${base_url}/usuarios/${this.uid}`;
 
-    // TODO
     data = {
       ...data,
       role: this.usuario.role
     }
 
-
-    return this.http.put(`${base_url}/usuarios/${this.uid}`, data, {
-      headers: {
-        'x-token': this.token
-      }
-    });
+    return this.http.put(url, data, this.headers);
   }
 
   login(formData: LoginForm) {
@@ -138,5 +140,37 @@ export class UsuarioService {
       );
   }
 
+  cargarUsuarios(desde: number = 0) {
+    // localhost:3000/api/usuarios?desde=5
+    const url = `${base_url}/usuarios?desde=${desde}`;
+
+    return this.http.get<CargarUsuario>(url, this.headers)
+      .pipe(
+        map(resp => {
+          const usuarios = resp.usuarios.map(
+            user => new Usuario(user.nombre, user.email, '', user.img, user.google, user.role, user.uid)
+          );
+
+          return {
+            total: resp.total,
+            usuarios: usuarios
+          };
+
+        }
+        ),
+      );
+  }
+
+  eliminarUsuario(usuario: Usuario) {
+    // localhost:3000/api/usuarios/id
+    const url = `${base_url}/usuarios/${usuario.uid}`;
+    return this.http.delete(url, this.headers);
+  }
+
+  actualizarRole(usuario: Usuario) {
+    // localhost:3000/api/usuarios/id
+    const url = `${base_url}/usuarios/${usuario.uid}`;
+    return this.http.put(url, usuario, this.headers);
+  }
 
 }

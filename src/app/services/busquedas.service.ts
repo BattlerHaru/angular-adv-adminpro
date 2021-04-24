@@ -39,15 +39,24 @@ export class BusquedasService {
 
     return resultados;
   }
+
   private transformarMedicos(resultados: any[]): Medico[] {
 
     return resultados;
+  }
+
+  busquedaGlobal(termino: string) {
+    // localhost:3000/api/todo/termino
+    const url = `${base_url}/todo/${termino}`;
+
+    return this.http.get(url, this.headers);
   }
 
   buscar(
     tipo: 'usuarios' | 'medicos' | 'hospitales',
     termino: string
   ) {
+    // localhost:3000/api/todo/coleccion/tipo/termino
 
     const url = `${base_url}/todo/coleccion/${tipo}/${termino}`;
     return this.http.get<any[]>(url, this.headers)

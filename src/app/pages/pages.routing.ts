@@ -2,6 +2,8 @@ import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 
 import { AuthGuard } from '../guards/auth.guard';
+import { AdminGuard } from '../guards/admin.guard';
+
 
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ProgressComponent } from './progress/progress.component';
@@ -17,6 +19,7 @@ import { UsuariosComponent } from './mantenimientos/usuarios/usuarios.component'
 import { HospitalesComponent } from './mantenimientos/hospitales/hospitales.component';
 import { MedicosComponent } from './mantenimientos/medicos/medicos.component';
 import { MedicoComponent } from './mantenimientos/medicos/medico.component';
+import { BusquedaComponent } from './busqueda/busqueda.component';
 
 
 const routes: Routes = [
@@ -26,17 +29,24 @@ const routes: Routes = [
         canActivate: [AuthGuard],
         children: [
             {
+                path: '', component: DashboardComponent,
+                data: {
+                    titulo: 'Dashboard'
+                }
+            },
+            {
                 path: 'account-settings', component: AccountSettingsComponent,
                 data: {
                     titulo: 'Ajustes de Cuenta'
                 }
             },
             {
-                path: '', component: DashboardComponent,
+                path: 'buscar/:termino', component: BusquedaComponent,
                 data: {
-                    titulo: 'Dashboard'
+                    titulo: 'Busquedas'
                 }
             },
+
             {
                 path: 'grafica1', component: Grafica1Component,
                 data: {
@@ -87,8 +97,12 @@ const routes: Routes = [
                     titulo: 'Mantenimiento de Medico'
                 }
             },
+
+            // Rutas de Admin
             {
-                path: 'usuarios', component: UsuariosComponent,
+                path: 'usuarios',
+                canActivate: [AdminGuard],
+                component: UsuariosComponent,
                 data: {
                     titulo: 'Mantenimiento de Usuarios'
                 }

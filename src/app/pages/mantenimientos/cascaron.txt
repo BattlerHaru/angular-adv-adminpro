@@ -36,7 +36,7 @@
                 <th>Nombre</th>
                 <th>Role</th>
                 <th>Auth</th>
-                <th class="text-nowrap">Acciones</th>
+                <th class="text-nowrap w100">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -47,7 +47,7 @@
                 <td>Lunar probe project</td>
                 <td>Lunar probe project</td>
 
-                <td class="text-nowrap">
+                <td class="text-nowrap text-center">
                   <a
                     href="#"
                     data-toggle="tooltip"
